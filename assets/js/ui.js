@@ -1,299 +1,337 @@
 /* ============================================================
-   SmartHatch — client-side auth (demo only, localStorage backed)
-   Real deployments must replace this with a server session.
+   SmartHatch — shared UI behaviours (nav, motion, modal, toast)
    ============================================================ */
 
 (function () {
   "use strict";
 
-  var KEYS = {
-    users: "smarthatch.users.v1",
-    session: "smarthatch.session.v1",
-    tickets: "smarthatch.tickets.v1",
-    ideas: "smarthatch.ideas.v1"
-  };
+  var UI = {};
 
-  function read(key, fallback) {
-    try {
-      var raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : fallback;
-    } catch (e) {
-      return fallback;
-    }
-  }
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  UI.$ = $;
+  UI.$$ = $$;
 
-  function write(key, value) {
-    try {
-      localStorage.setItem(key, JSON.stringify(value));
-    } catch (e) {
-      /* storage unavailable (private mode) — state stays in memory */
-      memory[key] = value;
-    }
-  }
-
-  var memory = {};
-  function get(key, fallback) {
-    return key in memory ? memory[key] : read(key, fallback);
-  }
-  function set(key, value) {
-    write(key, value);
-    memory[key] = value;
-  }
-
-  /* Demo-grade digest. Not for production secrets. */
-  function digest(text) {
-    var h = 5381;
-    var salted = "sh1:" + text + ":hatch";
-    for (var i = 0; i < salted.length; i++) {
-      h = (h * 33) ^ salted.charCodeAt(i);
-    }
-    return (h >>> 0).toString(16).padStart(8, "0");
-  }
-
-  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
-  function isEmail(v) { return EMAIL_RE.test(String(v || "").trim()); }
-
-  function normalize(email) { return String(email || "").trim().toLowerCase(); }
-
-  function users() { return get(KEYS.users, []); }
-  function saveUsers(list) { set(KEYS.users, list); }
-
-  function findUser(email) {
-    var e = normalize(email);
-    return users().filter(function (u) { return u.email === e; })[0] || null;
-  }
-
-  function publicUser(u) {
-    if (!u) return null;
-    return { name: u.name, email: u.email, provider: u.provider, createdAt: u.createdAt, initials: u.initials };
-  }
-
-  function initialsOf(name, email) {
-    var src = (name || email || "?").trim();
-    var parts = src.split(/[\s._@-]+/).filter(Boolean);
-    var out = (parts[0] || "?").slice(0, 1);
-    if (parts.length > 1) out += (parts[1] || "").slice(0, 1);
-    return out.toUpperCase();
-  }
-
-  function seed() {
-    if (users().length) return;
-    var created = Date.now() - 1000 * 60 * 60 * 24 * 12;
-    saveUsers([
-      {
-        id: "u-demo",
-        name: "Aria Nguyen",
-        email: "demo@smarthatch.com",
-        pass: digest("Hatch2026"),
-        provider: "email",
-        createdAt: created,
-        initials: "AN"
-      }
-    ]);
-  }
-
-  /* ---------------- session ---------------- */
-
-  function session() { return get(KEYS.session, null); }
-
-  function startSession(user) {
-    var s = {
-      email: user.email,
-      name: user.name,
-      provider: user.provider,
-      initials: user.initials,
-      since: Date.now()
-    };
-    set(KEYS.session, s);
-    return s;
-  }
-
-  function endSession() {
-    try { localStorage.removeItem(KEYS.session); } catch (e) {}
-    delete memory[KEYS.session];
-  }
-
-  function guard() {
-    if (session()) return true;
-    var back = encodeURIComponent(location.pathname.split("/").pop() || "index.html");
-    location.replace("login.html?next=" + back);
-    return false;
-  }
-
-  /* ---------------- accounts ---------------- */
-
-  function signUp(input) {
-    var name = String(input.name || "").trim();
-    var email = normalize(input.email);
-    if (name.length < 2) return { ok: false, error: "Please enter your full name." };
-    if (!isEmail(email)) return { ok: false, error: "That email address does not look right." };
-    if (findUser(email)) return { ok: false, error: "An account with this email already exists. Try logging in." };
-    if (String(input.password || "").length < 8) return { ok: false, error: "Password must be at least 8 characters." };
-
-    var user = {
-      id: "u-" + Math.random().toString(36).slice(2, 9),
-      name: name,
-      email: email,
-      pass: digest(input.password),
-      provider: "email",
-      createdAt: Date.now(),
-      initials: initialsOf(name, email)
-    };
-    var list = users();
-    list.push(user);
-    saveUsers(list);
-    return { ok: true, user: user, session: startSession(user) };
-  }
-
-  function signIn(email, password) {
-    var user = findUser(email);
-    if (!user) return { ok: false, error: "No SmartHatch account found for that email." };
-    if (user.provider !== "email") {
-      return { ok: false, error: "This account uses " + providerLabel(user.provider) + ". Continue with that provider instead." };
-    }
-    if (user.pass !== digest(password)) return { ok: false, error: "Incorrect password. Try again or reset it." };
-    return { ok: true, user: user, session: startSession(user) };
-  }
-
-  function providerLabel(p) {
-    return p === "google" ? "Google" : p === "microsoft" ? "Microsoft" : "email";
-  }
-
-  function providerEmail(name, domain) {
-    var handle = normalize(name).replace(/[^a-z0-9._-]+/g, ".").replace(/^\.+|\.+$/g, "") || "founder";
-    return handle + "@" + domain;
-  }
-
-  function providerSignIn(provider, rawName, rawEmail) {
-    var name = String(rawName || "").trim();
-    var email = normalize(rawEmail || providerEmail(name || provider + " user", provider === "google" ? "gmail.com" : "outlook.com"));
-    if (!isEmail(email)) return { ok: false, error: "Enter a valid " + providerLabel(provider) + " email address." };
-    var display = name || email.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, function (c) { return c.toUpperCase(); });
-
-    var user = findUser(email);
-    if (!user) {
-      user = {
-        id: "u-" + Math.random().toString(36).slice(2, 9),
-        name: display,
-        email: email,
-        pass: null,
-        provider: provider,
-        createdAt: Date.now(),
-        initials: initialsOf(display, email)
-      };
-      var list = users();
-      list.push(user);
-      saveUsers(list);
-    } else if (user.provider !== provider) {
-      return { ok: false, error: "That email is registered with " + providerLabel(user.provider) + ". Use the matching sign-in option." };
-    }
-    return { ok: true, user: user, session: startSession(user) };
-  }
-
-  /* ---------------- password reset ---------------- */
-
-  var CODE_TTL = 10 * 60 * 1000;
-
-  function tickets() { return get(KEYS.tickets, {}); }
-
-  function requestReset(email) {
-    var e = normalize(email);
-    if (!isEmail(e)) return { ok: false, error: "Enter a valid email address." };
-    var user = findUser(e);
-    var t = tickets();
-    var code = String(Math.floor(100000 + Math.random() * 900000));
-    /* Always report success so accounts cannot be enumerated. */
-    t[e] = { code: code, exp: Date.now() + CODE_TTL, tries: 0 };
-    set(KEYS.tickets, t);
-    return { ok: true, email: e, code: code, existing: !!user, provider: user ? user.provider : null };
-  }
-
-  function verifyReset(email, code) {
-    var e = normalize(email);
-    var t = tickets();
-    var ticket = t[e];
-    if (!ticket) return { ok: false, error: "This reset request has expired. Start again." };
-    if (Date.now() > ticket.exp) { delete t[e]; set(KEYS.tickets, t); return { ok: false, error: "That code expired. Request a new one." }; }
-    if (ticket.tries >= 5) return { ok: false, error: "Too many attempts. Request a new code." };
-    if (ticket.code !== String(code).trim()) {
-      ticket.tries++;
-      set(KEYS.tickets, t);
-      return { ok: false, error: "That code is not correct. " + (5 - ticket.tries) + " attempts left." };
-    }
-    delete t[e];
-    set(KEYS.tickets, t);
-    return { ok: true, email: e };
-  }
-
-  function completeReset(email, password) {
-    var e = normalize(email);
-    if (String(password || "").length < 8) return { ok: false, error: "Password must be at least 8 characters." };
-    var user = findUser(e);
-    if (!user) return { ok: false, error: "Account not found." };
-    var list = users();
-    user.pass = digest(password);
-    user.provider = "email";
-    saveUsers(list);
-    return { ok: true };
-  }
-
-  /* ---------------- per-user workspace data ---------------- */
-
-  function seedIdeas(email) {
-    var all = get(KEYS.ideas, {});
-    if (all[email]) return all[email];
-    var ideas = [
-      { title: "Cold-brew vending kiosks", stage: "Validating", progress: 62, team: "Retail Ops", updated: "2h ago" },
-      { title: "Freight CO₂ ledger", stage: "Building", progress: 41, team: "Climate", updated: "yesterday" },
-      { title: "Grandparent tutoring app", stage: "Hatched", progress: 100, team: "Education", updated: "3d ago" },
-      { title: "Modular farm housing", stage: "Screening", progress: 18, team: "Agri", updated: "5d ago" }
-    ];
-    all[email] = ideas;
-    set(KEYS.ideas, all);
-    return ideas;
-  }
-
-  function ideas() {
-    var s = session();
-    if (!s) return [];
-    return seedIdeas(normalize(s.email));
-  }
-
-  function addIdea(idea) {
-    var s = session();
-    if (!s) return { ok: false, error: "Sign in first." };
-    var all = get(KEYS.ideas, {});
-    var list = all[normalize(s.email)] || [];
-    list.unshift({
-      title: String(idea.title).trim(),
-      stage: idea.stage || "Screening",
-      progress: 5,
-      team: idea.team || "Unassigned",
-      updated: "just now"
+  UI.esc = function (text) {
+    return String(text == null ? "" : text).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
-    all[normalize(s.email)] = list;
-    set(KEYS.ideas, all);
-    return { ok: true };
+  };
+
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  UI.reduced = reduced;
+
+  /* ---------------- nav ---------------- */
+
+  function initNav() {
+    var nav = $(".nav");
+    if (nav) {
+      var onScroll = function () { nav.classList.toggle("is-stuck", window.scrollY > 12); };
+      onScroll();
+      window.addEventListener("scroll", onScroll, { passive: true });
+    }
+
+    var burger = $(".burger");
+    var menu = $(".mobile-menu");
+    if (burger && menu) {
+      burger.addEventListener("click", function () {
+        var open = menu.classList.toggle("is-open");
+        burger.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      menu.addEventListener("click", function (e) {
+        if (e.target.closest("a, button:not(.burger)")) {
+          menu.classList.remove("is-open");
+          burger.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
   }
 
-  seed();
+  /* ---------------- reveal on scroll ---------------- */
 
-  window.SH = {
-    isEmail: isEmail,
-    normalize: normalize,
-    session: session,
-    guard: guard,
-    signUp: signUp,
-    signIn: signIn,
-    providerSignIn: providerSignIn,
-    providerLabel: providerLabel,
-    endSession: endSession,
-    requestReset: requestReset,
-    verifyReset: verifyReset,
-    completeReset: completeReset,
-    findUser: findUser,
-    ideas: ideas,
-    addIdea: addIdea,
-    publicUser: publicUser
+  function initReveal() {
+    var items = $$(".reveal");
+    if (!items.length) return;
+    if (reduced || !("IntersectionObserver" in window)) {
+      items.forEach(function (el) { el.classList.add("is-in"); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var el = entry.target;
+        var delay = Number(el.dataset.delay || 0);
+        setTimeout(function () { el.classList.add("is-in"); }, delay);
+        io.unobserve(el);
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
+    items.forEach(function (el) { io.observe(el); });
+  }
+
+  /* ---------------- counters ---------------- */
+
+  function initCounters() {
+    var nodes = $$("[data-count]");
+    if (!nodes.length) return;
+    var run = function (el) {
+      var target = parseFloat(el.dataset.count);
+      var suffix = el.dataset.suffix || "";
+      var dur = 1300;
+      var start = performance.now();
+      var tick = function (now) {
+        var p = Math.min(1, (now - start) / dur);
+        var eased = 1 - Math.pow(1 - p, 3);
+        var val = target >= 100 ? Math.round(target * eased) : (target * eased).toFixed(1);
+        el.textContent = val + suffix;
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      if (reduced) { el.textContent = target + suffix; return; }
+      requestAnimationFrame(tick);
+    };
+    if (!("IntersectionObserver" in window)) { nodes.forEach(run); return; }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { run(e.target); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.4 });
+    nodes.forEach(function (el) { io.observe(el); });
+  }
+
+  /* ---------------- ripple ---------------- */
+
+  function initRipple() {
+    document.addEventListener("pointerdown", function (e) {
+      var btn = e.target.closest(".btn, .tile");
+      if (!btn || reduced) return;
+      var r = btn.getBoundingClientRect();
+      var size = Math.max(r.width, r.height);
+      var span = document.createElement("span");
+      span.className = "ripple";
+      span.style.width = span.style.height = size + "px";
+      span.style.left = (e.clientX - r.left - size / 2) + "px";
+      span.style.top = (e.clientY - r.top - size / 2) + "px";
+      btn.appendChild(span);
+      setTimeout(function () { span.remove(); }, 640);
+    });
+  }
+
+  /* ---------------- toast ---------------- */
+
+  var ICONS = {
+    ok: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+    err: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fb7185" stroke-width="2.2" stroke-linecap="round"><path d="M12 8v5"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>',
+    info: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" stroke-linecap="round"><path d="M12 16v-5"/><path d="M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg>'
   };
+  UI.ICONS = ICONS;
+
+  UI.toast = function (title, body, kind) {
+    kind = kind || "info";
+    var host = $(".toasts");
+    if (!host) {
+      host = document.createElement("div");
+      host.className = "toasts";
+      document.body.appendChild(host);
+    }
+    var el = document.createElement("div");
+    el.className = "toast toast--" + kind;
+    el.setAttribute("role", kind === "err" ? "alert" : "status");
+    el.innerHTML = ICONS[kind] + '<div><div class="toast__title">' + UI.esc(title) + "</div>" +
+      (body ? '<div class="toast__body">' + UI.esc(body) + "</div>" : "") + "</div>";
+    host.appendChild(el);
+    var kill = function () {
+      el.classList.add("is-out");
+      setTimeout(function () { el.remove(); }, 320);
+    };
+    var timer = setTimeout(kill, 4200);
+    el.addEventListener("click", function () { clearTimeout(timer); kill(); });
+  };
+
+  /* ---------------- modal ---------------- */
+
+  var lastFocus = null;
+
+  UI.openModal = function (modal) {
+    if (typeof modal === "string") modal = $("#" + modal);
+    if (!modal) return;
+    lastFocus = document.activeElement;
+    modal.classList.add("is-open");
+    modal.removeAttribute("hidden");
+    document.body.style.overflow = "hidden";
+    var first = modal.querySelector("input, select, textarea, button");
+    if (first) setTimeout(function () { first.focus(); }, 60);
+  };
+
+  UI.closeModal = function (modal) {
+    if (typeof modal === "string") modal = $("#" + modal);
+    if (!modal) return;
+    modal.classList.remove("is-open");
+    document.body.style.overflow = "";
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  };
+
+  function initModals() {
+    $$(".modal").forEach(function (modal) {
+      modal.addEventListener("click", function (e) {
+        if (e.target === modal || e.target.closest("[data-close]")) UI.closeModal(modal);
+      });
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        var open = $(".modal.is-open");
+        if (open) UI.closeModal(open);
+        $$(".menu").forEach(function (m) { m.remove(); });
+        var sb = $(".sidebar");
+        if (sb) { sb.classList.remove("is-open"); $(".scrim") && $(".scrim").classList.remove("is-open"); }
+      }
+    });
+  }
+
+  /* ---------------- dropdown menu ---------------- */
+
+  UI.menu = function (anchor, items) {
+    $$(".menu").forEach(function (m) { m.remove(); });
+    var el = document.createElement("div");
+    el.className = "menu";
+    el.setAttribute("role", "menu");
+    el.innerHTML = items.map(function (it) {
+      if (it.head) return '<div class="menu__head">' + it.head + "</div>";
+      if (it.separator) return '<div style="height:1px;background:var(--line);margin:6px 4px"></div>';
+      var label = (it.icon || "") + "<span>" + UI.esc(it.label) + "</span>";
+      return it.href
+        ? '<a role="menuitem" href="' + it.href + '">' + label + "</a>"
+        : '<button type="button" role="menuitem" class="' + (it.danger ? "is-danger" : "") + '" data-action="' + UI.esc(it.action || "") + '">' + label + "</button>";
+    }).join("");
+
+    var wrap = anchor.parentElement;
+    if (getComputedStyle(wrap).position === "static") wrap.style.position = "relative";
+    wrap.appendChild(el);
+
+    el.addEventListener("click", function (e) {
+      var btn = e.target.closest("button[data-action]");
+      if (!btn) return;
+      close();
+      var found = items.filter(function (i) { return i.action === btn.dataset.action; })[0];
+      if (found && found.onClick) found.onClick();
+    });
+
+    function close() {
+      el.remove();
+      document.removeEventListener("click", onDoc);
+    }
+    function onDoc(e) { if (!el.contains(e.target) && e.target !== anchor) close(); }
+    setTimeout(function () { document.addEventListener("click", onDoc); }, 0);
+    return el;
+  };
+
+  /* ---------------- field helpers ---------------- */
+
+  UI.setFieldError = function (input, message) {
+    var field = input.closest(".field");
+    if (!field) return;
+    field.classList.toggle("is-invalid", !!message);
+    field.classList.toggle("is-valid", !message && !!String(input.value).trim());
+    var err = field.querySelector(".error-text");
+    if (err) err.textContent = message || "";
+    input.setAttribute("aria-invalid", message ? "true" : "false");
+  };
+
+  UI.clearErrors = function (form) {
+    $$(".field", form).forEach(function (f) { f.classList.remove("is-invalid", "is-valid"); });
+    $$(".error-text", form).forEach(function (e) { e.textContent = ""; });
+  };
+
+  UI.busy = function (btn, on, label) {
+    if (!btn) return;
+    if (on) {
+      btn.dataset.prevHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.classList.add("is-loading");
+      btn.innerHTML = '<span class="spinner" aria-hidden="true"></span><span class="btn__label">' + UI.esc(label || "Working…") + "</span>";
+    } else {
+      btn.disabled = false;
+      btn.classList.remove("is-loading");
+      if (btn.dataset.prevHtml) btn.innerHTML = btn.dataset.prevHtml;
+    }
+  };
+
+  UI.strength = function (pwd) {
+    var p = String(pwd || "");
+    var score = 0;
+    if (p.length >= 8) score++;
+    if (/[A-Z]/.test(p) && /[a-z]/.test(p)) score++;
+    if (/\d/.test(p)) score++;
+    if (/[^A-Za-z0-9]/.test(p) || p.length >= 14) score++;
+    if (p.length === 0) score = 0;
+    if (p.length > 0 && score === 0) score = 1;
+    return score;
+  };
+
+  UI.timeAgo = function (ts) {
+    var d = Math.floor((Date.now() - ts) / 1000);
+    if (d < 60) return "just now";
+    if (d < 3600) return Math.floor(d / 60) + " min ago";
+    if (d < 86400) return Math.floor(d / 3600) + " h ago";
+    return Math.floor(d / 86400) + " d ago";
+  };
+
+  /* ---------------- boot ---------------- */
+
+  function boot() {
+    var page = document.body.dataset.page || "";
+    document.documentElement.classList.add("js");
+    initNav();
+    initReveal();
+    initCounters();
+    initRipple();
+    initModals();
+
+    /* password visibility toggles */
+    $$("[data-toggle-pass]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var input = document.getElementById(btn.dataset.togglePass);
+        if (!input) return;
+        var show = input.type === "password";
+        input.type = show ? "text" : "password";
+        btn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+        btn.classList.toggle("is-on", show);
+        var eye = btn.querySelector("[data-eye-off]");
+        if (eye) eye.style.display = show ? "none" : "block";
+        var slash = btn.querySelector("[data-eye-on]");
+        if (slash) slash.style.display = show ? "block" : "none";
+      });
+    });
+
+    /* sidebar drawer (dashboard) */
+    var burgerSide = $("[data-side-toggle]");
+    var sidebar = $(".sidebar");
+    if (burgerSide && sidebar) {
+      var scrim = $(".scrim");
+      if (!scrim) {
+        scrim = document.createElement("div");
+        scrim.className = "scrim";
+        document.body.appendChild(scrim);
+      }
+      var close = function () { sidebar.classList.remove("is-open"); scrim.classList.remove("is-open"); burgerSide.setAttribute("aria-expanded", "false"); };
+      burgerSide.addEventListener("click", function () {
+        var open = sidebar.classList.toggle("is-open");
+        scrim.classList.toggle("is-open", open);
+        burgerSide.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      scrim.addEventListener("click", close);
+      sidebar.addEventListener("click", function (e) { if (e.target.closest("a,button")) close(); });
+    }
+
+    window.__shReady = true;
+    document.dispatchEvent(new CustomEvent("sh:ready", { detail: { page: page } }));
+  }
+
+  UI.initRevealAfterUpdate = initReveal;
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+
+  window.SHUI = UI;
 })();
