@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Workspace — SmartHatch</title>
+<meta name="description" content="Your SmartHatch innovation workspace: ideas, validation and hatch sprints.">
+<meta name="theme-color" content="#060a16">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%236366f1'/%3E%3Cpath d='M16 6c5 0 7 4.5 7 8.5S19.5 25 16 25s-7-4.5-7-10.5S11 6 16 6Z' fill='none' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-page="dashboard">
+<div class="scene" aria-hidden="true">
+  <span class="orb orb--1"></span><span class="orb orb--3"></span>
+  <div class="grid-veil"></div>
+</div>
+
+<div class="app">
+  <aside class="sidebar">
+    <a class="logo" href="index.html"><span class="logo__mark"><svg viewBox="0 0 24 24" fill="none" stroke="#061018" stroke-width="2" stroke-linecap="round"><path d="M12 3.5c4 0 6 3.6 6 7.2 0 4-2.7 6.8-6 6.8s-6-2.8-6-6.8c0-3.6 2-7.2 6-7.2Z"/><path d="M9.8 12.6 11.6 14.5l4.2-4.2"/></svg></span><span class="logo__text">SmartHatch</span></a>
+
+    <nav class="side-links">
+      <a class="is-active" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/></svg> Pipeline</a>
+      <a href="#ideas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 3a6 6 0 0 1 3 11v3H9v-3a6 6 0 0 1 3-11Z"/><path d="M10 20h4"/></svg> Ideas</a>
+      <a href="#reviews"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M17 11h4M19 9v4"/></svg> Sponsor reviews</a>
+      <a href="#sprints"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18"/></svg> Hatch sprints</a>
+      <a href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 19V5M4 19h16"/><path d="m8 15 3-4 3 2 4-6"/></svg> Portfolio</a>
+    </nav>
+
+    <div class="sidebar__foot stack-sm">
+      <div class="card" style="padding:14px">
+        <div class="tiny muted">Signed in via</div>
+        <div class="small" id="dProvider" style="font-weight:600">Email account</div>
+        <div class="tiny muted" id="dSince">—</div>
+      </div>
+      <button class="btn btn--danger btn--block" type="button" onclick="SHUI.openModal('logoutModal')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 17l-5-5 5-5"/><path d="M5 12h9"/></svg>
+        Log out
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <button class="burger burger--app" data-side-toggle aria-label="Open navigation" aria-expanded="false"><span></span><span></span><span></span></button>
+      <div class="grow">
+        <h1 style="margin:0;font-size:1.6rem"><span id="dGreet">Welcome back</span></h1>
+        <p class="tiny muted" style="margin:4px 0 0" id="dMail">—</p>
+      </div>
+      <button class="btn btn--primary" id="newIdeaBtn" onclick="SHUI.openModal('ideaModal')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        <span class="hide-sm">New idea</span>
+      </button>
+      <div style="position:relative">
+        <button class="user-chip" id="userChip" type="button" aria-haspopup="menu">
+          <span class="avatar avatar--sm" id="dInitials">S</span>
+          <span style="text-align:left"><span class="user-chip__name" id="dName">—</span><span class="user-chip__mail" id="dMailChip">Signed-in account</span></span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <section class="kpis stagger" style="margin-bottom:22px">
+      <div class="card kpi"><div class="kpi__label">Ideas in pipeline</div><div class="kpi__value" id="kpiIdeas">0</div><div class="kpi__delta">+2 this week</div></div>
+      <div class="card kpi"><div class="kpi__label">Hatched bets</div><div class="kpi__value" id="kpiHatched">0</div><div class="kpi__delta">1 funded pilot</div></div>
+      <div class="card kpi"><div class="kpi__label">Average readiness</div><div class="kpi__value" id="kpiAvg">0%</div><div class="kpi__delta kpi__delta--down">-4% vs last sprint</div></div>
+      <div class="card kpi"><div class="kpi__label">Review queue</div><div class="kpi__value">3</div><div class="kpi__delta">Next: Thu 15:00</div></div>
+    </section>
+
+    <div class="grid-2">
+      <section class="card card--pad-lg" id="ideas">
+        <div class="row-between" style="margin-bottom:16px">
+          <h3 style="margin:0">Hatch pipeline</h3>
+          <span class="tag">Live view</span>
+        </div>
+        <div class="list" id="ideaList"></div>
+      </section>
+
+      <div class="stack">
+        <section class="card card--pad-lg" id="reviews">
+          <h3 style="margin-bottom:14px">Awaiting sponsor</h3>
+          <div class="list">
+            <div class="list__item"><div class="avatar avatar--sm">MR</div><div class="grow"><div class="list__title">Mira Rauf</div><div class="list__meta">Northwind Retail · brief ready</div></div><span class="tag tag--wait">Chase</span></div>
+            <div class="list__item"><div class="avatar avatar--sm">JO</div><div class="grow"><div class="list__title">Jonah Oyelaran</div><div class="list__meta">Helio Group · scored 82</div></div><span class="tag tag--now">Booked</span></div>
+          </div>
+        </section>
+
+        <section class="card card--pad-lg" id="sprints">
+          <h3 style="margin-bottom:14px">Sprint 14 · week 2</h3>
+          <div class="stack-sm">
+            <div><div class="row-between tiny muted"><span>Custodian interviews</span><span>7/10</span></div><div class="progress" style="margin-top:6px"><i style="width:70%"></i></div></div>
+            <div><div class="row-between tiny muted"><span>Cost model</span><span>4/10</span></div><div class="progress" style="margin-top:6px"><i style="width:40%"></i></div></div>
+            <div><div class="row-between tiny muted"><span>Kill-or-continue prep</span><span>1/10</span></div><div class="progress" style="margin-top:6px"><i style="width:10%"></i></div></div>
+          </div>
+          <p class="tiny muted" style="margin:14px 0 0">Data is local to this browser — a demo of the signed-in experience.</p>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- new idea -->
+<div class="modal" id="ideaModal" hidden role="dialog" aria-modal="true" aria-labelledby="ideaTitle">
+  <div class="modal__box">
+    <h3 id="ideaTitle">Hatch a new idea</h3>
+    <p class="small muted">Capture it now, evidence it later. Everything here is editable.</p>
+    <form id="ideaForm" class="stack" novalidate>
+      <div class="alert alert--err hide" id="iError" role="alert"></div>
+      <div class="field">
+        <label for="iTitle">Idea name</label>
+        <div class="control"><input id="iTitle" type="text" placeholder="e.g. In-store repair kiosks"></div>
+      </div>
+      <div class="field">
+        <label for="iTeam">Owning team</label>
+        <div class="control"><input id="iTeam" type="text" placeholder="e.g. Retail Ops"></div>
+      </div>
+      <div class="modal__actions">
+        <button class="btn btn--quiet" type="button" data-close>Cancel</button>
+        <button class="btn btn--primary" type="submit">Add to pipeline</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- logout confirm -->
+<div class="modal" id="logoutModal" hidden role="dialog" aria-modal="true" aria-labelledby="logoutTitle">
+  <div class="modal__box">
+    <div class="row" style="gap:14px;align-items:flex-start">
+      <span class="benefit__ico" style="color:#ffb3c0;border-color:rgba(251,113,133,.4);background:rgba(251,113,133,.14)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 17l-5-5 5-5"/><path d="M5 12h9"/></svg>
+      </span>
+      <div>
+        <h3 id="logoutTitle" style="margin-bottom:4px">Log out of SmartHatch?</h3>
+        <p class="small muted" style="margin:0">Your pipeline stays saved in this browser. You will need to sign in again to view it.</p>
+      </div>
+    </div>
+    <div class="modal__actions">
+      <button class="btn btn--quiet" type="button" data-close>Stay signed in</button>
+      <button class="btn btn--danger" type="button" id="logoutConfirm">Log out</button>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" aria-live="polite"></div>
+
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/pages.js"></script>
+</body>
+</html>

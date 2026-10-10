@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Create your SmartHatch account</title>
+<meta name="description" content="Create a SmartHatch account with Google, Microsoft, or an email and password.">
+<meta name="theme-color" content="#060a16">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%236366f1'/%3E%3Cpath d='M16 6c5 0 7 4.5 7 8.5S19.5 25 16 25s-7-4.5-7-10.5S11 6 16 6Z' fill='none' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-page="signup">
+<div class="scene" aria-hidden="true">
+  <span class="orb orb--1"></span><span class="orb orb--2"></span><span class="orb orb--3"></span>
+  <div class="grid-veil"></div>
+</div>
+
+<div class="auth">
+  <aside class="auth__brand">
+    <div class="row-between">
+      <a class="logo logo--lg" href="index.html"><span class="logo__mark"><svg viewBox="0 0 24 24" fill="none" stroke="#061018" stroke-width="2" stroke-linecap="round"><path d="M12 3.5c4 0 6 3.6 6 7.2 0 4-2.7 6.8-6 6.8s-6-2.8-6-6.8c0-3.6 2-7.2 6-7.2Z"/><path d="M9.8 12.6 11.6 14.5l4.2-4.2"/></svg></span><span class="logo__text">SmartHatch</span></a>
+      <a class="btn btn--quiet" href="index.html">← Home</a>
+    </div>
+    <div>
+      <span class="pill"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/></svg> Free for 20 collaborators</span>
+      <h2 style="margin-top:16px">Create the workspace your <span class="grad-text">best ideas</span> deserve.</h2>
+      <p class="muted" style="max-width:40ch">Set up in under a minute. Invite your team after the first idea lands.</p>
+    </div>
+    <div class="stack benefits" style="margin-top:auto">
+      <div class="benefit"><span class="benefit__ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><div><div style="font-weight:600">No credit card</div><div class="tiny muted">Start free, upgrade only when the pipeline grows.</div></div></div>
+      <div class="benefit"><span class="benefit__ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/></svg></span><div><div style="font-weight:600">Templates included</div><div class="tiny muted">Retail, climate, education and venture playbooks.</div></div></div>
+      <div class="benefit"><span class="benefit__ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/></svg></span><div><div style="font-weight:600">Data stays yours</div><div class="tiny muted">Export every idea, score and decision at any time.</div></div></div>
+    </div>
+    <span class="egg" aria-hidden="true"></span>
+  </aside>
+
+  <main class="auth__body">
+    <div class="auth__card page">
+      <div class="alert alert--info hide" id="authNotice" role="status"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 16v-5"/><path d="M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg><span>You are already signed in — opening your workspace…</span></div>
+
+      <div class="row" style="margin-bottom:18px">
+        <div><div class="small muted">Already have an account?</div><a class="link" href="login.html">Sign in instead</a></div>
+      </div>
+
+      <h1>Create account</h1>
+      <p class="muted">Pick an identity to continue, or register with an email and password.</p>
+
+      <div id="suProviders" class="tiles" style="margin:20px 0 6px">
+        <button class="btn btn--provider" type="button" data-provider="google"><svg class="provider-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.3c0-.9-.1-1.5-.2-2.2H12v4.1h6.5c-.1 1.1-.8 2.7-2.5 3.8l-.1.2 3.6 2.8.3.3c2.3-2.1 3.7-5.3 3.7-9z"/><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.8-2.9c-1 .7-2.4 1.2-4.1 1.2-3.2 0-5.9-2.1-6.8-5l-3.6 2.7C3.4 21.4 7.4 24 12 24z"/><path fill="#FBBC05" d="M5.2 14.4c-.3-.8-.4-1.6-.4-2.4s.1-1.6.4-2.4l-4-3A12 12 0 0 0 0 12c0 1.9.5 3.7 1.2 5.2z"/><path fill="#EA4335" d="M12 4.7c2.3 0 3.9 1 4.7 1.8l3.5-3.4C18 1.1 15.2 0 12 0 7.4 0 3.4 2.6 1.2 6.6l4 3.1c.9-2.9 3.6-5 6.8-5z"/></svg> Continue with Google</button>
+        <button class="btn btn--provider" type="button" data-provider="microsoft"><svg class="provider-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="#F25022" d="M2 2h9.2v9.2H2z"/><path fill="#7FBA00" d="M12.8 2H22v9.2h-9.2z"/><path fill="#00A4EF" d="M2 12.8h9.2V22H2z"/><path fill="#FFB900" d="M12.8 12.8H22V22h-9.2z"/></svg> Continue with Microsoft</button>
+      </div>
+
+      <div class="divider" style="margin:20px 0">or with email</div>
+
+      <form id="signupForm" class="stack" novalidate>
+        <div class="alert alert--err hide" id="suError" role="alert"></div>
+
+        <div class="field">
+          <label for="suName">Full name</label>
+          <div class="control control--icon">
+            <span class="control__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg></span>
+            <input id="suName" name="name" type="text" placeholder="Sam Okafor" autocomplete="name">
+          </div>
+          <span class="error-text"></span>
+        </div>
+
+        <div class="field">
+          <label for="suEmail">Work email</label>
+          <div class="control control--icon">
+            <span class="control__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="2.5" y="4.5" width="19" height="15" rx="3"/><path d="m3 7 9 6 9-6"/></svg></span>
+            <input id="suEmail" name="email" type="email" placeholder="you@company.com" autocomplete="email" inputmode="email">
+          </div>
+          <span class="error-text"></span>
+        </div>
+
+        <div class="field">
+          <label for="suPass">Password</label>
+          <div class="control control--icon">
+            <span class="control__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="4" y="10.5" width="16" height="10" rx="3"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg></span>
+            <input id="suPass" name="password" type="password" placeholder="At least 8 characters" autocomplete="new-password">
+            <span class="control__suffix">
+              <button class="icon-btn" type="button" data-toggle-pass="suPass" aria-label="Show password">
+                <svg data-eye-on class="hide" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M3 3l18 18"/><path d="M10.6 6.2A9.6 9.6 0 0 1 12 6c5 0 9 6 9 6a17 17 0 0 1-2.7 3.3"/><path d="M6.3 8.2A16.7 16.7 0 0 0 3 12s4 6 9 6c1.5 0 2.9-.4 4.1-1"/></svg>
+                <svg data-eye-off width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M3 12s4-6 9-6 9 6 9 6-4 6-9 6-9-6-9-6Z"/><circle cx="12" cy="12" r="2.6"/></svg>
+              </button>
+            </span>
+          </div>
+          <span class="error-text"></span>
+          <div class="meter" id="suMeter" data-score="0">
+            <div class="meter__bars"><i></i><i></i><i></i><i></i></div>
+            <div class="meter__label" id="suMeterLabel">Use 8+ characters</div>
+          </div>
+          <div class="hint-chips">
+            <span class="chip" data-chip="len">8+ characters</span>
+            <span class="chip" data-chip="mix">Upper &amp; lower</span>
+            <span class="chip" data-chip="num">A number</span>
+            <span class="chip" data-chip="sym">A symbol</span>
+          </div>
+        </div>
+
+        <label class="check"><input type="checkbox" id="suTerms"><span>I agree to the <a class="link" href="#">Terms</a> and <a class="link" href="#">Privacy Policy</a>, and to receive product updates. Unsubscribe anytime.</span></label>
+
+        <button class="btn btn--primary btn--lg btn--block" type="submit">Create my workspace</button>
+      </form>
+
+      <p class="tiny muted center" style="margin-top:18px">This demo stores accounts in your browser only — nothing is sent to a server.</p>
+    </div>
+  </main>
+</div>
+
+<!-- simulated provider consent -->
+<div class="modal" id="providerModal" hidden role="dialog" aria-modal="true" aria-labelledby="pTitle">
+  <div class="modal__box">
+    <div class="modal__provider">
+      <span class="tile__ico" data-p-ico></span>
+      <div><div class="tile__title" id="pTitle" data-p-title>Continue with Google</div><div class="tiny muted" data-p-sub></div></div>
+    </div>
+    <form novalidate>
+      <div class="stack">
+        <div class="field">
+          <label for="pName">Display name <span class="muted tiny">(optional)</span></label>
+          <div class="control control--icon"><span class="control__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg></span><input id="pName" data-p-name type="text" placeholder="e.g. Sam Okafor" autocomplete="name"></div>
+        </div>
+        <div class="field">
+          <label for="pMail">Account email</label>
+          <div class="control control--icon"><span class="control__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="2.5" y="4.5" width="19" height="15" rx="3"/><path d="m3 7 9 6 9-6"/></svg></span><input id="pMail" data-p-mail type="email" placeholder="you@company.com" autocomplete="email"></div>
+        </div>
+        <div class="alert alert--err hide" data-p-error role="alert"></div>
+        <div class="modal__actions">
+          <button class="btn btn--quiet" type="button" data-close>Cancel</button>
+          <button class="btn btn--primary" type="submit">Continue</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toasts" aria-live="polite"></div>
+
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/pages.js"></script>
+</body>
+</html>
